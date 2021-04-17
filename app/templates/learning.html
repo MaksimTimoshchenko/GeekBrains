@@ -1,0 +1,65 @@
+{% extends "/layouts/main.html" %}
+{% block content %}
+    <h1>Хочу учиться</h1>
+    <h3>Наши курсы</h3>
+    <p>Все программы действуют в течение года.</p>
+    {% if date is defined %}
+        <p>Расписание на дату: {{date}}</p>
+    {% endif %}
+
+    <table class="table">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col"></th>
+                {% for city in cities %}
+                    <th scope="col">{{ city }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for course in courses %}
+                <tr>
+                    <th scope="row">{{ course.title }}</th>
+                    {% for schedule in course.schedule %}
+                        <td>
+                            {{ schedule.date }}<br>
+                            {{ schedule.time }}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+        </table>
+        <div class="col-3">
+            <h3>Зарегистрируйся</h3>
+            <form>
+                <div class="mb-3">
+                    <label for="exampleInputEmail1" class="form-label">Электронный адрес</label>
+                    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                    <div id="emailHelp" class="form-text">Электронный адрес будет использоваться только для обратной связи и не будет передаваться третьим лицам</div>
+                </div>
+                <div class="mb-3">
+                    <label for="exampleInputPassword1" class="form-label">Пароль</label>
+                    <input type="password" class="form-control" autocomplete="off" id="exampleInputPassword1">
+                </div>
+                <div class="mb-3">
+                    <select class="form-select" aria-label="Default select example">
+                        <option selected>Ближайший центр</option>
+                        {% for city in cities %}
+                            <option value="{{ loop.index }}">{{ city }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3 form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked">
+                    <label class="form-check-label" for="flexSwitchCheckChecked">Являетесь участником?</label>
+                </div>
+                <div class="mb-3">
+                    <label for="exampleInputPromocode" class="form-label">Промокод</label>
+                    <input type="text" value="{{ promocode }}" class="form-control" readonly id="exampleInputPromocode">
+                    <div id="promocodeHelp" class="form-text">Вам предоставлен промокод на скидку! Он автоматически сохранится при оформлении заявки! :)</div>
+                </div>
+                <button type="submit" class="btn btn-primary">Подать заявку</button>
+            </form>
+        </div>
+{% endblock %}

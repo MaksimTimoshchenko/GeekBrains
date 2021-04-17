@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    {% include '/controls/head.html' %}
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <main class="mb-5">
+        {% include '/controls/navbar.html' %}
+        <section class="container">
+            {% block content %}{% endblock %}
+        </section>
+    </main>
+    {% include '/controls/footer.html' %}
+</body>
+</html>
