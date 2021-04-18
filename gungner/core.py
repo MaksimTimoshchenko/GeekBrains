@@ -1,3 +1,7 @@
+from pprint import pprint
+from gungner.requestor import Requestor
+
+
 class Gungner:
 
     def __init__(self, urlpatterns: dict, front_controllers: list):
@@ -14,9 +18,8 @@ class Gungner:
             view = self.urlpatterns[path]
         else:
             view = PageNotFound()
-        
-        request = {}
 
+        request = Requestor().get_request_params(environ)
         for front_controller in self.front_controllers:
             front_controller(request)
         
