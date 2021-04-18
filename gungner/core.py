@@ -1,4 +1,3 @@
-from pprint import pprint
 from gungner.requestor import Requestor
 
 

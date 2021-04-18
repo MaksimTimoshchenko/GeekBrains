@@ -1,1 +1,1 @@
-email='example@gmail.com', phone='8-800-700-89-89', message='Вы лучшие!'
+theme='GeekBrains - Урок №2', email='example@email.com', phone='8-800-800-88-88', message='Проверка сохранения POST-запроса в файл!'

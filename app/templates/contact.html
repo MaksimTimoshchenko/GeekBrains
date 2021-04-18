@@ -7,6 +7,10 @@
             <h3>Форма обратной связи</h3>
             <form method="POST" action="/contact">
                 <div class="mb-3">
+                    <label for="formTheme" class="form-label">Тема сообщения</label>
+                    <input type="text" placeholder="Вопрос по регистрации на курс :)" name="theme" required class="form-control" id="formTheme">
+                </div>
+                <div class="mb-3">
                     <label for="formInputEmail" class="form-label">Электронный адрес</label>
                     <input type="email" class="form-control" id="formInputEmail" aria-describedby="emailHelp" name="email">
                     <div id="emailHelp" class="form-text">Электронный адрес будет использоваться только для обратной связи и не будет передаваться третьим лицам</div>

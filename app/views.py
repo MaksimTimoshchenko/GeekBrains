@@ -94,3 +94,4 @@ class Contact:
                 contacts_file.write(contact + "\n")
         
         return '200 OK', render('contact.html', page='contact')
+        
