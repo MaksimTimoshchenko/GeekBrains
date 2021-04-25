@@ -85,3 +85,13 @@ class Learning:
             }
         ]
         return '200 OK', render('learning.html', date=date, cities=cities, courses=courses, promocode=promocode, page='learning')
+
+class Contact:
+    def __call__(self, request):
+        if 'params' in request and request['method'] == 'POST':
+            contact = ', '.join("{!s}={!r}".format(key,val) for (key,val) in request['params'].items())
+            with open("contacts.txt", "a+") as contacts_file:
+                contacts_file.write(contact + "\n")
+        
+        return '200 OK', render('contact.html', page='contact')
+        

@@ -1,6 +1,6 @@
 from datetime import date
 from secrets import token_hex
-from .views import About, Index, Learning
+from .views import About, Contact, Index, Learning
 
 def generate_promocode_front_controller(request):
     request['promocode'] = token_hex(16)
@@ -17,4 +17,5 @@ urlpatterns = {
     '/': Index(),
     '/about': About(),
     '/learning': Learning(),
+    '/contact': Contact(),
 }
