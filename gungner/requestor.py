@@ -28,15 +28,22 @@ class Requestor:
             result = self.parse_input_data(data_str)
         return result
 
-    @staticmethod
-    def decode_value(data):
-        new_data = {}
-        for k, v in data.items():
-            val = bytes(v.replace('%', '=').replace("+", " "), 'UTF-8')
-            val_decode_str = quopri.decodestring(val).decode('UTF-8')
-            new_data[k] = val_decode_str
-        return new_data
+    def decode_value(function):
+        def wrapper(*args, **kwargs):
+            request = function(*args, **kwargs)
 
+            if request['params']:
+                new_data = {}
+                for k, v in request['params'].items():
+                    val = bytes(v.replace('%', '=').replace("+", " "), 'UTF-8')
+                    val_decode_str = quopri.decodestring(val).decode('UTF-8')
+                    new_data[k] = val_decode_str
+                request['params'] = new_data
+            return request
+
+        return wrapper
+
+    @decode_value
     def get_request_params(self, environ):
         request = {}
         method = environ['REQUEST_METHOD']
@@ -46,7 +53,7 @@ class Requestor:
             request_params = self.parse_input_data(query_string)
         elif method == 'POST':
             data = self.get_wsgi_input_data(environ)
-            request_params = self.decode_value(self.parse_wsgi_input_data(data))
+            request_params = self.parse_wsgi_input_data(data)
 
         request['params'] = request_params
 

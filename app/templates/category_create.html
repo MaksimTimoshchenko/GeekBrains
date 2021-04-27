@@ -1,0 +1,13 @@
+{% extends "/layouts/main.html" %}
+{% block content %}
+    <h1>Создать категорию</h1>
+    <div class="col-3">
+        <form method="POST" action="/categories/create">
+            <div class="mb-3">
+                <label for="formName" class="form-label">Название категории</label>
+                <input type="text" placeholder="Web разработка на Python" name="name" required class="form-control" id="formName">
+            </div>
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+        </form>
+    </div>
+{% endblock %}

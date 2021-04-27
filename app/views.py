@@ -1,8 +1,16 @@
 from gungner import render
+from patterns.creational_patterns import Logger, Engine
+from pprint import pprint
+
+engine = Engine()
+logger = Logger('main')
+# logger2 = Logger('main')
 
 
 class Index:
     def __call__(self, request):
+        # print(logger, logger2)
+        logger.log('LogLine: ' + str(request.get('date').strftime('%H:%M:%S')) + ' - главная страница!')
         return '200 OK', render('index.html', page='index')
 
 class About:
@@ -94,4 +102,99 @@ class Contact:
                 contacts_file.write(contact + "\n")
         
         return '200 OK', render('contact.html', page='contact')
+
+class CreateCategory:
+    def __call__(self, request):
+        logger.log('LogLine: ' + str(request.get('date').strftime('%H:%M:%S')) + ' - создание категории!')
+        if request['method'] == 'POST':
+            name = request['params'].get('name', None)
+            
+            # TODO: Session postback
+            if engine.get_category_by_name(name) is not None:
+                raise Exception('Категория с таким именем уже создана!')
+
+            category = engine.create_category(name)
+            engine.categories.append(category)
+
+            pprint(vars(category))
+            pprint([engine.categories])
+
+            return '200 OK', render('categories.html', categories_list=engine.categories, page='categories')
+        else:
+            return '200 OK', render('category_create.html', page='category_create')
+
+class CategoriesList:
+    def __call__(self, request):
+        logger.log('LogLine: ' + str(request.get('date').strftime('%H:%M:%S')) + ' - список категорий')
+        return '200 OK', render('categories.html', categories_list=engine.categories)
+
+class CreateCourse:
+    category_id = 0
+
+    def __call__(self, request):
+        logger.log('LogLine: ' + str(request.get('date').strftime('%H:%M:%S')) + ' - создание курса!')
+        if request['method'] == 'POST':
+            name = request['params'].get('name', None)
+            type_alias = request['params'].get('type_alias', None)
+
+            # TODO: Session postback
+            if not name:
+                raise Exception('Необходимо указать название курса!')
+
+            if type_alias not in ['webinar', 'interactive', 'video']:
+                raise Exception('Некорректный тип курса!')
+                
+            category = None
+            if self.category_id != 0:
+                category = engine.get_category_by_id(int(self.category_id))
+
+                course = engine.create_course(type_alias, name, category)
+                engine.courses.append(course)
+
+            return '200 OK', render('courses.html', courses_list=engine.courses)
+
+        else:
+            try:
+                self.category_id = request['params'].get('id')
+                category = engine.get_category_by_id(int(self.category_id))
+
+                return '200 OK', render('course_create.html', category=category)
+            except KeyError:
+                return '200 OK', 'Сначала нужно добавить категории!'
+
+class CoursesList:
+    def __call__(self, request):
+        logger.log('LogLine: ' + str(request.get('date').strftime('%H:%M:%S')) + ' - список курсов!')
+        try:
+            category = engine.get_category_by_id(request['params'].get('id'))
+            return '200 OK', render('courses.html', courses_list=category.courses, page='courses')
+        
+        except KeyError:
+            return '200 OK', 'Список курсов пуст!'
+
+class CopyCourse:
+    def __call__(self, request):
+        logger.log('LogLine: ' + str(request.get('date').strftime('%H:%M:%S')) + ' - копирование курса!')
+            
+        try:
+            name = request['params'].get('name', None)
+            
+            if not name:
+                raise Exception('Не указано название курса, который будет скопирован!')
+
+            copied_course = engine.get_course_by_name(name)
+
+            if not copied_course:
+                raise Exception('Курс с таким именем не найден!')
+
+            if copied_course:
+                new_name = f'copy_{name}'
+                course = copied_course.clone()
+                course.name = new_name
+                engine.courses.append(course)
+
+            return '200 OK', render('courses.html', courses_list=engine.courses)
+        
+        except KeyError:
+            return '200 OK', 'Список курсов пуст!'
         

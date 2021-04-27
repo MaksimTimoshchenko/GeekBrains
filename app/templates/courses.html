@@ -1,0 +1,14 @@
+{% extends "/layouts/main.html" %}
+{% block content %}
+    <h1>Список курсов</h1>
+
+    <ul class="list-group">
+        {% for course in courses_list %}
+            <li class="list-group-item">
+                «{{ course.name }}»
+                <br>Категория: {{ course.category.name }}
+                <br><a href="/courses/copy?name={{ course.category.name }}" class="text-success">Скопировать курс</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
