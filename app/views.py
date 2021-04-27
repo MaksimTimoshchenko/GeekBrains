@@ -126,7 +126,7 @@ class CreateCategory:
 class CategoriesList:
     def __call__(self, request):
         logger.log('LogLine: ' + str(request.get('date').strftime('%H:%M:%S')) + ' - список категорий')
-        return '200 OK', render('categories.html', categories_list=engine.categories)
+        return '200 OK', render('categories.html', categories_list=engine.categories, page='categories')
 
 class CreateCourse:
     category_id = 0

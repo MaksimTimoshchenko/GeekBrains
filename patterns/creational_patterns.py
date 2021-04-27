@@ -1,5 +1,4 @@
 import copy
-import quopri
 
 from datetime import datetime
 
