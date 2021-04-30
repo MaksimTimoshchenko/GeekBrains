@@ -1,0 +1,21 @@
+{% extends "/layouts/main.html" %}
+{% block content %}
+    <h1>Создание курса для категории «{{ category.name }}»</h1>
+    <div class="col-3">
+        <form method="POST" action="/courses/create?id={{ category.id }}">
+            <div class="mb-3">
+                <label for="formName" class="form-label">Название курса</label>
+                <input type="text" placeholder="Архитектура и шаблоны проектирования на Python" name="name" required class="form-control" id="formName">
+            </div>
+            <div class="mb-3">
+                <label for="formTypeAlias" class="form-label">Формат курса</label>
+                <select class="form-select" name="type_alias" id="formTypeAlias">
+                    <option value="webinar">Вебинарный формат</option>
+                    <option value="interactive">Интерактивный курс</option>
+                    <option value="video">Видеокурс</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+        </form>
+    </div>
+{% endblock %}
