@@ -1,6 +1,8 @@
 from datetime import datetime
 from secrets import token_hex
-from .views import About, CategoriesList, Contact, CopyCourse, CreateCategory, CreateCourse, CoursesList, Index, Learning
+
+# from .views import About, CategoriesList, Contact, CopyCourse, CreateCategory, CreateCourse, CoursesList, Index, Learning
+
 
 def generate_promocode_front_controller(request):
     request['promocode'] = token_hex(16)
@@ -13,14 +15,16 @@ front_controllers = [
     fixate_request_date_front_controller
 ]
 
-urlpatterns = {
-    '/': Index(),
-    '/about': About(),
-    '/categories/create': CreateCategory(),
-    '/categories': CategoriesList(),
-    '/contact': Contact(),
-    '/courses/copy': CopyCourse(),
-    '/courses/create': CreateCourse(),
-    '/courses': CoursesList(),
-    '/learning': Learning(),
-}
+# urlpatterns = Router('/').routes
+
+# urlpatterns = {
+#     '/': Index(),
+#     '/about': About(),
+#     '/categories/create': CreateCategory(),
+#     '/categories': CategoriesList(),
+#     '/contact': Contact(),
+#     '/courses/copy': CopyCourse(),
+#     '/courses/create': CreateCourse(),
+#     '/courses': CoursesList(),
+#     '/learning': Learning(),
+# }

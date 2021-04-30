@@ -1,23 +1,31 @@
 from gungner import render
 from patterns.creational_patterns import Logger, Engine
-from pprint import pprint
+from patterns.structural_patterns import Router, Debug
+
 
 engine = Engine()
 logger = Logger('main')
-# logger2 = Logger('main')
+routes = {}
 
 
+# контроллер - главная страница
+@Router(url='/', routes=routes)
 class Index:
+    @Debug(name='Index')
     def __call__(self, request):
         # print(logger, logger2)
         logger.log('LogLine: ' + str(request.get('date').strftime('%H:%M:%S')) + ' - главная страница!')
         return '200 OK', render('index.html', page='index')
 
+@Router(url='/about', routes=routes)
 class About:
+    @Debug(name='About')
     def __call__(self, request):
         return '200 OK', render('about.html', page='about')
 
+@Router(url='/learning', routes=routes)
 class Learning:
+    @Debug(name='Learning')
     def __call__(self, request):
         promocode = request.get('promocode', None)
         date = request.get('date', None)
@@ -94,7 +102,9 @@ class Learning:
         ]
         return '200 OK', render('learning.html', date=date, cities=cities, courses=courses, promocode=promocode, page='learning')
 
+@Router(url='/contact', routes=routes)
 class Contact:
+    @Debug(name='Contact')
     def __call__(self, request):
         if 'params' in request and request['method'] == 'POST':
             contact = ', '.join("{!s}={!r}".format(key,val) for (key,val) in request['params'].items())
@@ -103,6 +113,7 @@ class Contact:
         
         return '200 OK', render('contact.html', page='contact')
 
+@Router(url='/categories/create', routes=routes)
 class CreateCategory:
     def __call__(self, request):
         logger.log('LogLine: ' + str(request.get('date').strftime('%H:%M:%S')) + ' - создание категории!')
@@ -116,18 +127,17 @@ class CreateCategory:
             category = engine.create_category(name)
             engine.categories.append(category)
 
-            pprint(vars(category))
-            pprint([engine.categories])
-
             return '200 OK', render('categories.html', categories_list=engine.categories, page='categories')
         else:
             return '200 OK', render('category_create.html', page='category_create')
 
+@Router(url='/categories', routes=routes)
 class CategoriesList:
     def __call__(self, request):
         logger.log('LogLine: ' + str(request.get('date').strftime('%H:%M:%S')) + ' - список категорий')
         return '200 OK', render('categories.html', categories_list=engine.categories, page='categories')
 
+@Router(url='/courses/create', routes=routes)
 class CreateCourse:
     category_id = 0
 
@@ -162,6 +172,7 @@ class CreateCourse:
             except KeyError:
                 return '200 OK', 'Сначала нужно добавить категории!'
 
+@Router(url='/courses', routes=routes)
 class CoursesList:
     def __call__(self, request):
         logger.log('LogLine: ' + str(request.get('date').strftime('%H:%M:%S')) + ' - список курсов!')
@@ -172,6 +183,7 @@ class CoursesList:
         except KeyError:
             return '200 OK', 'Список курсов пуст!'
 
+@Router(url='/courses/copy', routes=routes)
 class CopyCourse:
     def __call__(self, request):
         logger.log('LogLine: ' + str(request.get('date').strftime('%H:%M:%S')) + ' - копирование курса!')
