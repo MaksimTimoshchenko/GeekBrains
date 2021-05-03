@@ -1,8 +1,9 @@
-from gungner import Gungner
-from .urlpatterns import urlpatterns, front_controllers
+from gungner import DebugGungner
+from .urlpatterns import front_controllers
+from .views import routes
 
 
-application = Gungner(urlpatterns, front_controllers)
+application = DebugGungner(routes, front_controllers)
 
 if __name__ == '__main__':
     application.run()

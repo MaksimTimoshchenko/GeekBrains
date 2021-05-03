@@ -1,3 +1,5 @@
+from pprint import pprint
+
 from gungner.requestor import Requestor
 
 
@@ -25,8 +27,33 @@ class Gungner:
         code, response = view(request)
         start_response(code, [('Content-Type', 'text/html')])
         return [response.encode('utf-8')]
-
 class PageNotFound:
     def __call__(self, request):
         return '404 NOT_FOUND', 'Requested page does not found!'
+
+class DebugGungner(Gungner):
+    """
+    Такой же как основной, только он для каждого запроса 
+    выводит информацию (тип запроса и параметры) в консоль
+    """
+    def __init__(self, urlpatterns: dict, front_controllers: list):
+        self.application = Gungner(urlpatterns, front_controllers)
+        super().__init__(urlpatterns, front_controllers)
+
+    def __call__(self, environ, start_response):
+        print('DEBUG_MODE')
+        pprint(environ)
+        return self.application(environ, start_response)
+
+class FakeGungner(Gungner):
+    """
+    На все запросы пользователя отвечает “200 OK”, “Hello from Fake”
+    """
+    def __init__(self, urlpatterns: dict, front_controllers: list):
+        self.application = Gungner(urlpatterns, front_controllers)
+        super().__init__(urlpatterns, front_controllers)
+
+    def __call__(self, environ, start_response):
+        start_response('200 OK', [('Content-Type', 'text/html')])
+        return [b'Hello from Fake']
         
