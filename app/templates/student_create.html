@@ -1,0 +1,13 @@
+{% extends "/layouts/main.html" %}
+{% block content %}
+    <h1>Добавить студента</h1>
+    <div class="col-3">
+        <form method="POST" action="/students/create">
+            <div class="mb-3">
+                <label for="formName" class="form-label">ФИО студента</label>
+                <input type="text" placeholder="Иванов Иван Иванович" name="name" required class="form-control" id="formName">
+            </div>
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+        </form>
+    </div>
+{% endblock %}

@@ -8,6 +8,7 @@
                 «{{ course.name }}»
                 <br>Категория: {{ course.category.name }}
                 <br><a href="/courses/copy?name={{ course.category.name }}" class="text-success">Скопировать курс</a>
+                <a href="/courses/edit?id={{ course.id }}" class="text-success">Редактировать курс</a>
             </li>
         {% endfor %}
     </ul>

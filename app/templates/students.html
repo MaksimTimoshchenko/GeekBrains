@@ -1,0 +1,15 @@
+{% extends "/layouts/main.html" %}
+{% block content %}
+    <h1>Список студентов</h1>
+
+    <ul class="list-group mb-4">
+        {% for student in students_list %}
+            <li class="list-group-item">
+                {{ student.name }}
+            </li>
+        {% endfor %}
+    </ul>
+
+    <a class="btn btn-primary" href="/students/create" role="button">Добавить студента</a>
+    <a class="btn btn-primary" href="/students/add" role="button">Записать студента на курс</a>
+{% endblock %}
