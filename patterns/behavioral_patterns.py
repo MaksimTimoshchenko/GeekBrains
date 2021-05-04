@@ -1,3 +1,5 @@
+import jsonpickle
+
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
 
@@ -136,4 +138,15 @@ class FileWriter:
         # в зависимости от имени переданного в инициализацию логгера сами логи пишутся в разные файлы
         with open("log_" + str(self.name) + "_" + datetime.now().strftime("%Y-%m-%d") + ".txt", "a+") as log_file:
             log_file.write(f'{text}\n')
-            
+
+class BaseSerializer:
+
+    def __init__(self, obj):
+        self.obj = obj
+
+    def save(self):
+        return jsonpickle.dumps(self.obj)
+
+    @staticmethod
+    def load(data):
+        return jsonpickle.loads(data)

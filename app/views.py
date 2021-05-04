@@ -1,6 +1,6 @@
 from gungner import render
 
-from patterns.behavioral_patterns import CreateView, FileWriter, UpdateView, ListView, EmailNotifier, SmsNotifier
+from patterns.behavioral_patterns import BaseSerializer, CreateView, FileWriter, UpdateView, ListView, EmailNotifier, SmsNotifier
 from patterns.creational_patterns import Logger, Engine
 from patterns.structural_patterns import Router, Debug
 
@@ -284,4 +284,8 @@ class AddStudentByCourseCreateView(CreateView):
         student_name = data.get('student_name')
         student = engine.get_student_by_name(student_name)
         course.add_student(student)
-        
+
+@Router(url='/api/courses', routes=routes)
+class CourseApi:
+    def __call__(self, request):
+        return '200 OK', BaseSerializer(engine.courses).save()
