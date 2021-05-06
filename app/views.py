@@ -1,11 +1,16 @@
 from gungner import render
+
+from patterns.behavioral_patterns import BaseSerializer, CreateView, FileWriter, UpdateView, ListView, EmailNotifier, SmsNotifier
 from patterns.creational_patterns import Logger, Engine
 from patterns.structural_patterns import Router, Debug
 
 
 engine = Engine()
-logger = Logger('main')
+log_writer = FileWriter('main')
+logger = Logger(log_writer)
 routes = {}
+email_notifier = EmailNotifier()
+sms_notifier = SmsNotifier()
 
 
 # контроллер - главная страница
@@ -209,4 +214,78 @@ class CopyCourse:
         
         except KeyError:
             return '200 OK', 'Список курсов пуст!'
+
+@Router(url='/courses/edit', routes=routes)
+class CoursesUpdateView(UpdateView):
+    template_name = 'course_create.html'
+    page = 'courses'
+    context_object_name = 'course'
+
+    def get_object(self, data: dict):
+        id = data.get('id')
+
+        if not id:
+            raise Exception('Пустой идентификатор курса!')
+
+        return engine.get_course_by_id(id)
+
+    def update_object(self, data: dict):
+        course = self.get_object(data)
+
+        name = data.get('name')
+
+        if not name:
+            raise Exception('Необходимо указать название курса!')
+
+        course.attach(email_notifier)
+        course.attach(sms_notifier)
+
+        # обновление пока не делаю - просто демо observer
+        if (name != course.name):
+            course.notify()
         
+
+@Router(url='/students/create', routes=routes)
+class StudentsCreateView(CreateView):
+    template_name = 'student_create.html'
+    page = 'students'
+
+    def create_object(self, data: dict):
+        name = data.get('name')
+
+        if not name:
+            raise Exception('Необходимо указать имя студента!')
+        
+        student = engine.create_user('student', name)
+        engine.students.append(student)
+
+@Router(url='/students', routes=routes)
+class StudentsListView(ListView):
+    queryset = engine.students
+    template_name = 'students.html'
+    page = 'students'
+    context_object_name = 'students_list'
+
+
+@Router(url='/students/add', routes=routes)
+class AddStudentByCourseCreateView(CreateView):
+    template_name = 'student_add.html'
+
+    def get_context_data(self):
+        context = super().get_context_data()
+        context['courses'] = engine.courses
+        context['students'] = engine.students
+        return context
+
+    def create_object(self, data: dict):
+        course_name = data.get('course_name')
+        course = engine.get_course_by_name(course_name)
+
+        student_name = data.get('student_name')
+        student = engine.get_student_by_name(student_name)
+        course.add_student(student)
+
+@Router(url='/api/courses', routes=routes)
+class CourseApi:
+    def __call__(self, request):
+        return '200 OK', BaseSerializer(engine.courses).save()

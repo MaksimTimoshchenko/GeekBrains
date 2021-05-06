@@ -1,0 +1,23 @@
+{% extends "/layouts/main.html" %}
+{% block content %}
+    <h1>Записать студента на курс</h1>
+    <div class="col-3">
+        <form method="POST" action="/students/add">
+            <div class="mb-3">
+                <select class="form-select" name="course_name">
+                    {% for course in courses %}
+                        <option value="{{ course.name }}">{{ course.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <select class="form-select" name="student_name">
+                    {% for student in students %}
+                        <option value="{{ student.name }}">{{ student.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Записать</button>
+        </form>
+    </div>
+{% endblock %}
