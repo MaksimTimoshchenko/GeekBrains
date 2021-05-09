@@ -1,8 +1,10 @@
 from gungner import render
 
-from patterns.behavioral_patterns import BaseSerializer, CreateView, FileWriter, UpdateView, ListView, EmailNotifier, SmsNotifier
-from patterns.creational_patterns import Logger, Engine
+from patterns.behavioral_patterns import BaseSerializer, CreateView, DeleteView, FileWriter, UpdateView, ListView, EmailNotifier, SmsNotifier
+from patterns.creational_patterns import Logger, Engine, Student, Category
 from patterns.structural_patterns import Router, Debug
+from patterns.architectural_system_pattern_mappers import MapperRegistry
+from patterns.architectural_system_pattern_unit_of_work import UnitOfWork
 
 
 engine = Engine()
@@ -11,6 +13,8 @@ logger = Logger(log_writer)
 routes = {}
 email_notifier = EmailNotifier()
 sms_notifier = SmsNotifier()
+UnitOfWork.new_current()
+UnitOfWork.get_current().set_mapper_registry(MapperRegistry)
 
 
 # контроллер - главная страница
@@ -119,28 +123,46 @@ class Contact:
         return '200 OK', render('contact.html', page='contact')
 
 @Router(url='/categories/create', routes=routes)
-class CreateCategory:
-    def __call__(self, request):
-        logger.log('LogLine: ' + str(request.get('date').strftime('%H:%M:%S')) + ' - создание категории!')
-        if request['method'] == 'POST':
-            name = request['params'].get('name', None)
-            
-            # TODO: Session postback
-            if engine.get_category_by_name(name) is not None:
-                raise Exception('Категория с таким именем уже создана!')
+class CategoriesCreateView(CreateView):
+    template_name = 'category_create.html'
+    page = 'categories'
 
-            category = engine.create_category(name)
-            engine.categories.append(category)
+    def create_object(self, data: dict):
+        name = data.get('name')
 
-            return '200 OK', render('categories.html', categories_list=engine.categories, page='categories')
-        else:
-            return '200 OK', render('category_create.html', page='category_create')
+        if not name:
+            raise Exception('Необходимо указать имя категории!')
+        
+        category = Category(name=name)
+        schema = {'name': name}
+        category.mark_new(schema)
+        UnitOfWork.get_current().commit()
 
 @Router(url='/categories', routes=routes)
-class CategoriesList:
-    def __call__(self, request):
-        logger.log('LogLine: ' + str(request.get('date').strftime('%H:%M:%S')) + ' - список категорий')
-        return '200 OK', render('categories.html', categories_list=engine.categories, page='categories')
+class CategoriesListView(ListView):
+    template_name = 'categories.html'
+    page = 'categories'
+    context_object_name = 'categories_list'
+
+    def get_queryset(self):
+        mapper = MapperRegistry.get_current_mapper('category')
+        return mapper.all()
+
+@Router(url='/categories/delete', routes=routes)
+class CategoriesDeleteView(DeleteView):
+    template_name = 'categories.html'
+    page = 'categories'
+    context_object_name = 'categories_list'
+
+    def get_queryset(self):
+        mapper = MapperRegistry.get_current_mapper('category')
+        return mapper.all()
+
+    def delete_object(self, data: dict):
+        category_id = data.get('id')
+        category = Category(id=category_id)
+        category.mark_removed()
+        UnitOfWork.get_current().commit()
 
 @Router(url='/courses/create', routes=routes)
 class CreateCourse:
@@ -182,7 +204,10 @@ class CoursesList:
     def __call__(self, request):
         logger.log('LogLine: ' + str(request.get('date').strftime('%H:%M:%S')) + ' - список курсов!')
         try:
-            category = engine.get_category_by_id(request['params'].get('id'))
+            mapper = MapperRegistry.get_current_mapper('category')
+            category = mapper.get_by_id(request['params'].get('id'))
+            # category = engine.get_category_by_id(request['params'].get('id'))
+
             return '200 OK', render('courses.html', courses_list=category.courses, page='courses')
         
         except KeyError:
@@ -256,15 +281,20 @@ class StudentsCreateView(CreateView):
         if not name:
             raise Exception('Необходимо указать имя студента!')
         
-        student = engine.create_user('student', name)
-        engine.students.append(student)
+        student = Student(name=name)
+        schema = {'name': name}
+        student.mark_new(schema)
+        UnitOfWork.get_current().commit()
 
 @Router(url='/students', routes=routes)
 class StudentsListView(ListView):
-    queryset = engine.students
     template_name = 'students.html'
     page = 'students'
     context_object_name = 'students_list'
+
+    def get_queryset(self):
+        mapper = MapperRegistry.get_current_mapper('student')
+        return mapper.all()
 
 
 @Router(url='/students/add', routes=routes)
@@ -273,8 +303,9 @@ class AddStudentByCourseCreateView(CreateView):
 
     def get_context_data(self):
         context = super().get_context_data()
+        mapper = MapperRegistry.get_current_mapper('student')
         context['courses'] = engine.courses
-        context['students'] = engine.students
+        context['students'] = mapper.all()
         return context
 
     def create_object(self, data: dict):
@@ -284,6 +315,22 @@ class AddStudentByCourseCreateView(CreateView):
         student_name = data.get('student_name')
         student = engine.get_student_by_name(student_name)
         course.add_student(student)
+
+@Router(url='/students/delete', routes=routes)
+class StudentsDeleteView(DeleteView):
+    template_name = 'students.html'
+    page = 'students'
+    context_object_name = 'students_list'
+
+    def get_queryset(self):
+        mapper = MapperRegistry.get_current_mapper('student')
+        return mapper.all()
+
+    def delete_object(self, data: dict):
+        student_id = data.get('id')
+        student = Student(id=student_id)
+        student.mark_removed()
+        UnitOfWork.get_current().commit()
 
 @Router(url='/api/courses', routes=routes)
 class CourseApi:

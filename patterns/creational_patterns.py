@@ -1,18 +1,26 @@
 import copy
 
-from patterns.behavioral_patterns import ConsoleWriter, Subject 
+from patterns.behavioral_patterns import ConsoleWriter, Subject
+from patterns.architectural_system_pattern_unit_of_work import DomainObject
 
 
 class User:
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, **kwargs):
+        if 'name' in kwargs:
+            self.name = kwargs.get('name')
+
+        if 'id' in kwargs:
+            self.id = kwargs.get('id')
+        
         self.courses = []
 
 class Teacher(User):
     pass
 
-class Student(User):
-    pass
+class Student(User, DomainObject):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
 
 class UserFactory:
@@ -24,7 +32,7 @@ class UserFactory:
     # Фабричный метод
     @classmethod
     def create(cls, type_, name):
-        return cls.types[type_](name)
+        return cls.types[type_](name=name)
 
 # Прототип
 class CoursePrototype:
@@ -80,20 +88,18 @@ class CourseFactory:
     def create(cls, type_, name, category):
         return cls.types[type_](name, category, type_)
         
-class Category:
-    category_id = 1
+class Category(DomainObject):
+    def __init__(self, **kwargs):
+        if 'name' in kwargs:
+            self.name = kwargs.get('name')
 
-    def __init__(self, name, category):
-        self.id = Category.category_id
-        Category.category_id += 1
-        self.name = name
-        self.parent_category = category
+        if 'id' in kwargs:
+            self.id = kwargs.get('id')
+
         self.courses = []
 
     def courses_count(self):
         result = len(self.courses)
-        if self.parent_category:
-            result += self.parent_category.courses_count()
         return result
 
 

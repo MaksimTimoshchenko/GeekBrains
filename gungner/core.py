@@ -23,7 +23,7 @@ class Gungner:
         request = Requestor().get_request_params(environ)
         for front_controller in self.front_controllers:
             front_controller(request)
-        
+            
         code, response = view(request)
         start_response(code, [('Content-Type', 'text/html')])
         return [response.encode('utf-8')]
