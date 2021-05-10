@@ -6,6 +6,7 @@
         {% for student in students_list %}
             <li class="list-group-item">
                 {{ student.name }}
+                <a href="/students/delete/?id={{ student.id }}" type="button" class="btn btn-danger float-end">Удалить</a>
             </li>
         {% endfor %}
     </ul>

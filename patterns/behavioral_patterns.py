@@ -88,6 +88,31 @@ class UpdateView(TemplateView):
 
         return self.render_with_context()
 
+class DeleteView(TemplateView):
+    success_url = '/'
+    template_name = 'delete.html'
+    context_object_name = 'object'
+    request_params = []
+
+    def delete_object(self, data):
+        pass
+
+    def get_context_object_name(self):
+        return self.context_object_name
+
+    def get_context_data(self):
+        queryset = self.get_queryset()
+        context_object_name = self.get_context_object_name()
+        context = {context_object_name: queryset}
+        return context
+
+    def __call__(self, request):
+        request_params = request.get('params')
+        if request['method'] == 'GET':
+            self.delete_object(request_params)
+
+        return self.render_with_context()
+
 class Observer(metaclass=ABCMeta):
     """Паттерн Наблюдатель"""
 
@@ -150,3 +175,4 @@ class BaseSerializer:
     @staticmethod
     def load(data):
         return jsonpickle.loads(data)
+        
